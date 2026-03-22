@@ -972,16 +972,17 @@ def create_app():
         return render_template('student/result_detail.html', result=result, answers=answers, questions=questions)
 
     return app
-
+app = create_app()
 # ------------------- Run App -------------------
 if __name__ == '__main__':
-    app = create_app()
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
     print("\n" + "="*60)
     print("🚀 COACHING SYSTEM IS STARTING...")
     print("="*60)
     print("\n📋 Default Login Credentials:")
     print("   Developer Email: dev@coaching.com")
     print("   Developer Password: devpass123")
-    print("\n📍 Access the application at: http://127.0.0.1:5000")
+    print(f"\n📍 Access the application at: http://127.0.0.1:{port}")
     print("="*60 + "\n")
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    app.run(debug=debug, host='0.0.0.0', port=port)
