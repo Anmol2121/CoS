@@ -37,11 +37,13 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
 
-# ------------------- Database Creation Helper (Lazy Import) -------------------
+# ------------------- Database Creation Helper (Robust) -------------------
 def ensure_database_exists(app):
     """
     Create the PostgreSQL database if it does not exist.
     For SQLite, this function does nothing.
+    If psycopg2 cannot be imported (e.g., Python version incompatibility),
+    it assumes the database already exists and continues.
     """
     db_uri = app.config['SQLALCHEMY_DATABASE_URI']
     
@@ -54,9 +56,9 @@ def ensure_database_exists(app):
         import psycopg2
         from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
     except ImportError as e:
-        print("⚠️  psycopg2 is not installed. Cannot create PostgreSQL database.")
-        print("   Please install psycopg2 (not psycopg2-binary) if using PostgreSQL.")
-        raise e
+        print(f"⚠️  psycopg2 not available: {e}")
+        print("   Assuming the PostgreSQL database already exists.")
+        return  # Assume database exists (typical in production)
     
     # Parse PostgreSQL URI
     parsed = urlparse(db_uri)
@@ -972,8 +974,10 @@ def create_app():
         return render_template('student/result_detail.html', result=result, answers=answers, questions=questions)
 
     return app
-app = create_app()
+
 # ------------------- Run App -------------------
+app = create_app()  # Create app instance at module level (for Gunicorn)
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
