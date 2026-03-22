@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block sidebar %}
+    <ul class="list-unstyled">
+        <li><a href="{{ url_for('main.teacher_dashboard') }}" class="nav-link">Dashboard</a></li>
+        <li><a href="{{ url_for('main.teacher_questions') }}" class="nav-link">Questions</a></li>
+        <li><a href="{{ url_for('main.teacher_tests') }}" class="nav-link">Tests</a></li>
+        <li><a href="{{ url_for('main.teacher_results') }}" class="nav-link">Results</a></li>
+    </ul>
+{% endblock %}
+{% block content %}
+    <h1>Teacher Dashboard</h1>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Total Questions</h5>
+                    <p class="display-4">{{ total_questions }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Total Tests</h5>
+                    <p class="display-4">{{ total_tests }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

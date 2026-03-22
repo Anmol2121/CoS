@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .hero {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 1rem;
+        margin: 1rem 0;
+        padding: 2rem;
+    }
+    .hero-content {
+        text-align: center;
+        color: white;
+        z-index: 2;
+    }
+    .hero h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        animation: fadeInUp 1s ease-out;
+    }
+    .hero p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        animation: fadeInUp 1s ease-out 0.2s both;
+    }
+    .btn-hero {
+        background: white;
+        color: #667eea;
+        border: none;
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        transition: transform 0.3s, box-shadow 0.3s;
+        animation: fadeInUp 1s ease-out 0.4s both;
+    }
+    .btn-hero:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    /* Animation for floating student */
+    .student-animation {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        width: 150px;
+        height: 150px;
+        animation: float 3s ease-in-out infinite;
+        z-index: 1;
+    }
+    .student-animation svg {
+        width: 100%;
+        height: 100%;
+    }
+    /* Particle canvas */
+    #particle-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+    }
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+        100% { transform: translateY(0px); }
+    }
+    @media (max-width: 768px) {
+        .hero h1 { font-size: 2rem; }
+        .hero p { font-size: 1rem; }
+        .student-animation { width: 80px; height: 80px; bottom: 10px; right: 10px; }
+    }
+</style>
+
+<div class="hero">
+    <canvas id="particle-canvas"></canvas>
+    <div class="hero-content">
+        <h1>Welcome to Coaching System</h1>
+        <p>Prepare for UP Police, Delhi Police, SSC GD, SSC CHSL, Railway exams.</p>
+        <a href="{{ url_for('login') }}" class="btn btn-hero">Get Started</a>
+    </div>
+    <div class="student-animation">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="40" r="20" fill="#FFD966" stroke="#F4A261" stroke-width="2"/>
+            <rect x="45" y="55" width="10" height="25" fill="#FFD966" stroke="#F4A261" stroke-width="2"/>
+            <rect x="30" y="70" width="40" height="8" fill="#FFD966" stroke="#F4A261" stroke-width="2"/>
+            <circle cx="40" cy="35" r="2" fill="#000"/>
+            <circle cx="60" cy="35" r="2" fill="#000"/>
+            <path d="M45 45 L55 45" stroke="#000" stroke-width="2"/>
+            <path d="M30 20 L20 30 L30 30 Z" fill="#FFD966" stroke="#F4A261" stroke-width="2"/>
+            <path d="M70 20 L80 30 L70 30 Z" fill="#FFD966" stroke="#F4A261" stroke-width="2"/>
+        </svg>
+    </div>
+</div>
+
+<script>
+    // Particle Animation
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    let particles = [];
+
+    function resizeCanvas() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 3 + 1;
+            this.speedX = (Math.random() - 0.5) * 0.5;
+            this.speedY = (Math.random() - 0.5) * 0.5;
+            this.color = `rgba(255, 255, 255, ${Math.random() * 0.5})`;
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        particles = [];
+        for (let i = 0; i < 100; i++) {
+            particles.push(new Particle());
+        }
+    }
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        requestAnimationFrame(animateParticles);
+    }
+    initParticles();
+    animateParticles();
+</script>
+{% endblock %}

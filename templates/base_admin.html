@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block sidebar %}
+{% set nav_links = [
+    ('admin_dashboard', 'Dashboard', 'fa-home'),
+    ('admin_profile', 'Profile', 'fa-user-circle'),
+    ('admin_teachers', 'Teachers', 'fa-chalkboard-user'),
+    ('admin_students', 'Students', 'fa-user-graduate'),
+    ('admin_courses', 'Courses', 'fa-book-open'),
+    ('admin_tests', 'Tests', 'fa-file-signature'),
+    ('admin_test_series', 'Test Series', 'fa-layer-group'),
+    ('admin_results', 'Results', 'fa-chart-pie')
+] %}
+
+<div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-4 mt-2">Main Menu</div>
+
+{% for endpoint, label, icon in nav_links %}
+    <a href="{{ url_for(endpoint) }}" 
+       class="flex items-center gap-4 px-4 py-3.5 rounded-2xl mb-1.5 active:scale-[0.98] transition-all duration-200 font-semibold text-sm
+              {% if request.endpoint == endpoint %} bg-primary-50 text-primary-700 {% else %} text-gray-600 active:bg-gray-100 lg:hover:bg-gray-50 {% endif %}">
+        <div class="w-8 h-8 rounded-xl flex items-center justify-center {% if request.endpoint == endpoint %} bg-white shadow-sm text-primary-600 {% else %} text-gray-400 {% endif %} transition-colors">
+            <i class="fas {{ icon }} text-[18px]"></i>
+        </div>
+        {{ label }}
+    </a>
+{% endfor %}
+{% endblock %}

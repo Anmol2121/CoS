@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="card">
+        <div class="card-header">
+            <h3>Result for {{ result.test.title }}</h3>
+            <p>Score: {{ result.score|round(2) }}%</p>
+            <p>Correct: {{ result.correct_count }} | Wrong: {{ result.wrong_count }} | Total: {{ result.total_questions }}</p>
+        </div>
+        <div class="card-body">
+            {% for q in questions %}
+            <div class="mb-4 border p-3">
+                <p><strong>Q{{ loop.index }}.</strong> {{ q.text }}</p>
+                <p>Your answer: <strong>{{ answers[q.id|string] }}</strong></p>
+                <p>Correct answer: <strong>{{ q.correct_option }}</strong></p>
+                {% if answers[q.id|string] == q.correct_option %}
+                    <span class="text-success">Correct ✓</span>
+                {% else %}
+                    <span class="text-danger">Wrong ✗</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,213 @@
+/* Base Styles */
+body {
+    padding-top: 56px;
+    background-color: #f8f9fa;
+}
+.card {
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.offcanvas {
+    width: 250px;
+}
+.nav-link {
+    color: #333;
+}
+.nav-link.active {
+    font-weight: bold;
+    color: #0d6efd;
+}
+.btn-primary {
+    background-color: #0d6efd;
+    border: none;
+}
+.btn-primary:hover {
+    background-color: #0b5ed7;
+}
+
+/* Premium Sidebar Styles */
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    color: #2c3e50;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    background: transparent;
+}
+
+.sidebar-menu li a i {
+    width: 1.5rem;
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+    transition: transform 0.2s;
+}
+
+.sidebar-menu li a:hover {
+    background: #f8f9fa;
+    color: #0d6efd;
+    transform: translateX(4px);
+}
+
+.sidebar-menu li a:hover i {
+    transform: scale(1.1);
+}
+
+.sidebar-menu li a.active {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    color: white;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+}
+
+.sidebar-menu li a.active i {
+    color: white;
+}
+
+/* User Profile Section */
+.sidebar-user {
+    text-align: center;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 1rem;
+}
+
+.sidebar-user .avatar {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.sidebar-user .avatar i {
+    font-size: 2rem;
+    color: white;
+}
+
+.sidebar-user h6 {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.sidebar-user p {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+/* Offcanvas Custom Width */
+.offcanvas {
+    width: 280px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .offcanvas {
+        width: 260px;
+    }
+}
+
+/* ========== MOBILE NATIVE STYLES ========== */
+@media (max-width: 768px) {
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: space-around;
+        padding: 0.5rem 0;
+        z-index: 1030;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    }
+    .bottom-nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0.5rem 0;
+        color: #6c757d;
+        text-decoration: none;
+        font-size: 0.7rem;
+        transition: all 0.2s;
+    }
+    .bottom-nav-item i {
+        font-size: 1.2rem;
+        margin-bottom: 0.2rem;
+    }
+    .bottom-nav-item.active {
+        color: #0d6efd;
+    }
+    .bottom-nav-item:active {
+        transform: scale(0.95);
+    }
+
+    /* Add padding to main content to avoid overlap with bottom nav */
+    body {
+        padding-bottom: 70px;
+    }
+
+    /* Offcanvas full height on mobile */
+    .offcanvas {
+        width: 85% !important;
+        max-width: 300px;
+    }
+
+    /* Larger touch targets for sidebar links */
+    .sidebar-menu > li > a {
+        padding: 1rem !important;
+        margin: 0.25rem 0.5rem !important;
+    }
+    .sidebar-menu .collapse li a {
+        padding: 0.75rem 1rem !important;
+    }
+
+    /* Remove hover effects on mobile (use active) */
+    .sidebar-menu > li > a:hover {
+        transform: none;
+    }
+
+    /* Hide bottom nav when offcanvas is open (optional) */
+    .offcanvas.show ~ .bottom-nav {
+        display: none;
+    }
+}
+
+/* Tablet adjustments (768px - 992px) */
+@media (min-width: 768px) and (max-width: 992px) {
+    .bottom-nav {
+        display: none; /* No bottom nav on tablet, keep offcanvas */
+    }
+    body {
+        padding-bottom: 0;
+    }
+}
+
+/* Desktop: hide bottom nav */
+@media (min-width: 993px) {
+    .bottom-nav {
+        display: none;
+    }
+}

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block sidebar %}
+<div class="sidebar-user">
+    <div class="avatar">
+        <i class="fas fa-user-tie"></i>
+    </div>
+    <h6>{{ current_user.email }}</h6>
+    <p>Developer · Super Admin</p>
+</div>
+
+<ul class="sidebar-menu">
+    <li>
+        <a href="{{ url_for('developer_dashboard') }}" class="{% if request.endpoint == 'developer_dashboard' %}active{% endif %}">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li>
+        <a href="{{ url_for('manage_admins') }}" class="{% if request.endpoint == 'manage_admins' %}active{% endif %}">
+            <i class="fas fa-users"></i>
+            <span>Manage Admins</span>
+        </a>
+    </li>
+    <li>
+        <a href="#" data-bs-toggle="collapse" data-bs-target="#systemMenu" aria-expanded="false">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+            <i class="fas fa-chevron-down ms-auto"></i>
+        </a>
+        <ul class="collapse list-unstyled ms-4 mt-2" id="systemMenu">
+            <li><a href="#" class="small">General Settings</a></li>
+            <li><a href="#" class="small">Email Templates</a></li>
+            <li><a href="#" class="small">Backup</a></li>
+        </ul>
+    </li>
+</ul>
+{% endblock %}
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('developer_dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('manage_admins') }}">Manage Admins</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit Admin</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-white border-0 py-4">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-edit text-primary me-2"></i>
+                        Edit Admin
+                    </h3>
+                    <p class="text-muted mb-0">Update admin information and subscription details.</p>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        <!-- Email -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-envelope text-primary me-2"></i>Email Address
+                            </label>
+                            <input type="email" name="email" class="form-control form-control-lg" 
+                                   value="{{ user.email }}" required>
+                            <div class="form-text">The admin will use this email to log in.</div>
+                        </div>
+
+                        <!-- Coaching Name -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-building text-primary me-2"></i>Coaching Name
+                            </label>
+                            <input type="text" name="coaching_name" class="form-control form-control-lg" 
+                                   value="{{ admin.coaching_name }}" required>
+                            <div class="form-text">The name of the coaching center.</div>
+                        </div>
+
+                        <!-- Subscription Status -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-tag text-primary me-2"></i>Subscription Status
+                            </label>
+                            <select name="subscription_status" class="form-select form-select-lg">
+                                <option value="active" {% if admin.subscription_status == 'active' %}selected{% endif %}>
+                                    Active
+                                </option>
+                                <option value="expired" {% if admin.subscription_status == 'expired' %}selected{% endif %}>
+                                    Expired
+                                </option>
+                            </select>
+                            <div class="form-text">Determines if the admin can access their dashboard.</div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex gap-3 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-save me-2"></i>Update Admin
+                            </button>
+                            <a href="{{ url_for('manage_admins') }}" class="btn btn-outline-secondary btn-lg px-5">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Additional Info Card -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle fa-2x text-info"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-1">Admin Account Information</h6>
+                            <p class="mb-0 text-muted small">
+                                Created: {{ user.created_at.strftime('%B %d, %Y at %I:%M %p') }}<br>
+                                Status: {% if user.is_active %}Active{% else %}Suspended{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

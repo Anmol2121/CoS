@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="card">
+        <div class="card-header">
+            <h2>{{ test.title }}</h2>
+            <p>{{ test.description }}</p>
+            <p>Duration: {{ test.duration }} minutes</p>
+        </div>
+        <div class="card-body">
+            <form method="post" id="testForm">
+                {% for q in questions %}
+                <div class="mb-4 border p-3">
+                    <p><strong>Q{{ loop.index }}.</strong> {{ q.text }}</p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="q_{{ q.id }}" value="A" id="q{{ q.id }}_A">
+                        <label class="form-check-label" for="q{{ q.id }}_A">A. {{ q.option_a }}</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="q_{{ q.id }}" value="B" id="q{{ q.id }}_B">
+                        <label class="form-check-label" for="q{{ q.id }}_B">B. {{ q.option_b }}</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="q_{{ q.id }}" value="C" id="q{{ q.id }}_C">
+                        <label class="form-check-label" for="q{{ q.id }}_C">C. {{ q.option_c }}</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="q_{{ q.id }}" value="D" id="q{{ q.id }}_D">
+                        <label class="form-check-label" for="q{{ q.id }}_D">D. {{ q.option_d }}</label>
+                    </div>
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-success">Submit Test</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block sidebar %}{% endblock %}
+{% block content %}
+    <h2>Available Tests</h2>
+    <div class="row">
+        {% for test in available_tests %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ test.title }}</h5>
+                    <p class="card-text">{{ test.description }}</p>
+                    <p>Duration: {{ test.duration }} minutes</p>
+                    {% if test.id in attempted_test_ids %}
+                        <button class="btn btn-secondary" disabled>Already Attempted</button>
+                    {% else %}
+                        <a href="{{ url_for('main.attempt_test', test_id=test.id) }}" class="btn btn-primary">Start Test</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p>No tests available.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

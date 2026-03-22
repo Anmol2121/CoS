@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+{% block sidebar %}
+<div class="sidebar-user">
+    <div class="avatar">
+        <i class="fas fa-user-tie"></i>
+    </div>
+    <h6>{{ current_user.email }}</h6>
+    <p>Developer · Super Admin</p>
+</div>
+
+<ul class="sidebar-menu">
+    <li>
+        <a href="{{ url_for('developer_dashboard') }}" class="{% if request.endpoint == 'developer_dashboard' %}active{% endif %}">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li>
+        <a href="{{ url_for('manage_admins') }}" class="{% if request.endpoint == 'manage_admins' %}active{% endif %}">
+            <i class="fas fa-users"></i>
+            <span>Manage Admins</span>
+        </a>
+    </li>
+    <li>
+        <a href="#" data-bs-toggle="collapse" data-bs-target="#systemMenu" aria-expanded="false" aria-controls="systemMenu">
+            <i class="fas fa-cog"></i>
+            <span>System Settings</span>
+            <i class="fas fa-chevron-down ms-auto"></i>
+        </a>
+        <ul class="collapse list-unstyled" id="systemMenu">
+            <li><a href="#">General Settings</a></li>
+            <li><a href="#">Email Templates</a></li>
+            <li><a href="#">Backup</a></li>
+        </ul>
+    </li>
+</ul>
+{% endblock %}
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- Welcome Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 bg-gradient-primary text-white shadow-lg">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="display-6 fw-bold">Welcome back, Developer!</h2>
+                            <p class="lead mb-0">Here's what's happening with your coaching system today.</p>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            <i class="fas fa-chalkboard-user fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards - Enhanced -->
+    <div class="row g-4 mb-5">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Total Admins</h6>
+                            <h2 class="mb-0 fw-bold">{{ total_admins }}</h2>
+                            <small class="text-success"><i class="fas fa-arrow-up"></i> 12% from last month</small>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-user-tie fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Total Students</h6>
+                            <h2 class="mb-0 fw-bold">{{ total_students }}</h2>
+                            <small class="text-success"><i class="fas fa-arrow-up"></i> 8% from last month</small>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-graduation-cap fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Total Teachers</h6>
+                            <h2 class="mb-0 fw-bold">{{ total_teachers }}</h2>
+                            <small class="text-success"><i class="fas fa-arrow-up"></i> 5% from last month</small>
+                        </div>
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-chalkboard-user fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Active Subscriptions</h6>
+                            <h2 class="mb-0 fw-bold">{{ active_subscriptions }}</h2>
+                            <small class="text-success"><i class="fas fa-check-circle"></i> {{ ((active_subscriptions / (active_subscriptions + expired_subscriptions)) * 100)|round(0) if (active_subscriptions + expired_subscriptions) > 0 else 0 }}% active</small>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-check-circle fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and Activity -->
+    <div class="row g-4 mb-5">
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0">User Growth (Last 6 Months)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 200px;">
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for activity in recent_activities %}
+                        <div class="list-group-item d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <i class="{{ activity.icon }} text-{{ activity.color }}"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <small class="text-muted">{{ activity.time.strftime('%Y-%m-%d %H:%M') }}</small>
+                                <p class="mb-0">{{ activity.message }}</p>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted">
+                            No recent activities.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Admins Table -->
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0">Recent Admins</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Coaching Name</th>
+                                    <th>Subscription</th>
+                                    <th>Joined</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                 </tr>
+                            </thead>
+                            <tbody>
+                                {% for admin in recent_admins %}
+                                <tr>
+                                    <td>{{ admin.email }}</td>
+                                    <td>{{ admin.admin.coaching_name }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if admin.admin.subscription_status == 'active' else 'danger' }}">
+                                            {{ admin.admin.subscription_status|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td>{{ admin.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        {% if admin.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Suspended</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('edit_admin', id=admin.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No admins found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 text-end py-3">
+                    <a href="{{ url_for('manage_admins') }}" class="btn btn-sm btn-outline-primary">View All Admins</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const canvas = document.getElementById('growthChart');
+        if (canvas) {
+            try {
+                new Chart(canvas.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: {{ months|tojson }},
+                        datasets: [{
+                            label: 'New Users',
+                            data: {{ user_counts|tojson }},
+                            borderColor: '#0d6efd',
+                            backgroundColor: 'rgba(13,110,253,0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#0d6efd',
+                            pointBorderColor: '#fff',
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                backgroundColor: 'rgba(0,0,0,0.8)',
+                                titleColor: '#fff',
+                                bodyColor: '#ddd',
+                                borderColor: '#0d6efd',
+                                borderWidth: 1
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0,0,0,0.05)',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: function(value) {
+                                        return value;
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            }
+                        },
+                        elements: {
+                            line: {
+                                borderWidth: 2
+                            },
+                            point: {
+                                radius: 3,
+                                hoverRadius: 5
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Chart initialization error:', error);
+            }
+        } else {
+            console.error('Canvas element #growthChart not found');
+        }
+    });
+</script>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    }
+    .stat-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+    }
+    .rounded-circle {
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .list-group-item {
+        transition: background 0.2s;
+    }
+    .list-group-item:hover {
+        background: #f8f9fa;
+    }
+    .chart-container {
+        position: relative;
+        width: 100%;
+        height: 200px;
+    }
+    @media (max-width: 768px) {
+        .chart-container {
+            height: 180px;
+        }
+    }
+</style>
+{% endblock %}
