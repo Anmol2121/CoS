@@ -8,7 +8,6 @@ from dateutil.relativedelta import relativedelta
 from functools import wraps
 from urllib.parse import urlparse
 
-import psycopg2
 from flask import Flask, render_template, redirect, url_for, flash, request, abort, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
@@ -38,7 +37,7 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
 
-# ------------------- Database Creation Helper -------------------
+# ------------------- Database Creation Helper (Lazy Import) -------------------
 def ensure_database_exists(app):
     """
     Create the PostgreSQL database if it does not exist.
@@ -49,6 +48,15 @@ def ensure_database_exists(app):
     # Skip if SQLite
     if db_uri.startswith('sqlite'):
         return
+    
+    # Lazy import – only when we need to connect to PostgreSQL
+    try:
+        import psycopg2
+        from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+    except ImportError as e:
+        print("⚠️  psycopg2 is not installed. Cannot create PostgreSQL database.")
+        print("   Please install psycopg2 (not psycopg2-binary) if using PostgreSQL.")
+        raise e
     
     # Parse PostgreSQL URI
     parsed = urlparse(db_uri)
@@ -248,7 +256,6 @@ def create_app():
             if current_user.is_authenticated and current_user.admin_id:
                 admin = Admin.query.get(current_user.admin_id)
                 if admin and admin.logo:
-                    # admin.logo should be stored as 'uploads/filename.jpg'
                     return url_for('static', filename=admin.logo)
             return None
         return dict(get_coaching_logo=get_coaching_logo)
