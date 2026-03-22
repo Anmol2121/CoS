@@ -6,7 +6,9 @@ import uuid
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 from functools import wraps
+from urllib.parse import urlparse
 
+import psycopg2
 from flask import Flask, render_template, redirect, url_for, flash, request, abort, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
@@ -35,6 +37,55 @@ class Config:
 db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
+
+# ------------------- Database Creation Helper -------------------
+def ensure_database_exists(app):
+    """
+    Create the PostgreSQL database if it does not exist.
+    For SQLite, this function does nothing.
+    """
+    db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+    
+    # Skip if SQLite
+    if db_uri.startswith('sqlite'):
+        return
+    
+    # Parse PostgreSQL URI
+    parsed = urlparse(db_uri)
+    db_name = parsed.path[1:]  # remove leading '/'
+    db_user = parsed.username
+    db_password = parsed.password
+    db_host = parsed.hostname
+    db_port = parsed.port or 5432
+    
+    try:
+        # Connect to the default 'postgres' database
+        conn = psycopg2.connect(
+            host=db_host,
+            port=db_port,
+            user=db_user,
+            password=db_password,
+            database='postgres'
+        )
+        conn.autocommit = True
+        cursor = conn.cursor()
+        
+        # Check if target database exists
+        cursor.execute("SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s", (db_name,))
+        exists = cursor.fetchone()
+        
+        if not exists:
+            cursor.execute(f'CREATE DATABASE {db_name}')
+            print(f"✅ Database '{db_name}' created successfully.")
+        else:
+            print(f"✅ Database '{db_name}' already exists.")
+        
+        cursor.close()
+        conn.close()
+        
+    except Exception as e:
+        print(f"⚠️  Could not create database: {e}")
+        print("   Please ensure the database exists and connection parameters are correct.")
 
 # ------------------- Models -------------------
 class User(UserMixin, db.Model):
@@ -155,6 +206,9 @@ def load_user(user_id):
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    # Ensure the PostgreSQL database exists (if using PostgreSQL)
+    ensure_database_exists(app)
 
     db.init_app(app)
     login_manager.init_app(app)
@@ -511,7 +565,7 @@ def create_app():
                                months=months,
                                student_counts=student_counts,
                                current_date=current_date,
-                               admin=current_user.admin)   # <-- pass admin object
+                               admin=current_user.admin)
 
     @app.route('/admin/profile', methods=['GET', 'POST'])
     @login_required
@@ -530,7 +584,7 @@ def create_app():
                     os.makedirs(upload_dir, exist_ok=True)
                     logo_path = os.path.join(upload_dir, filename)
                     logo.save(logo_path)
-                    admin.logo = f'uploads/{filename}'   # store relative to static
+                    admin.logo = f'uploads/{filename}'
             admin.coaching_name = request.form.get('coaching_name')
             db.session.commit()
             flash('Profile updated.')
