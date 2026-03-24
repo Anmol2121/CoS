@@ -22,7 +22,11 @@ load_dotenv()
 # ------------------- Configuration -------------------
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-prod'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///coaching.db'
+    raw_db_uri = os.environ.get('DATABASE_URL') or 'sqlite:///coaching.db'
+    # Convert PostgreSQL URI to use psycopg driver (compatible with Python 3.14)
+    if raw_db_uri.startswith('postgresql://'):
+        raw_db_uri = raw_db_uri.replace('postgresql://', 'postgresql+psycopg://')
+    SQLALCHEMY_DATABASE_URI = raw_db_uri
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     MAIL_SERVER = os.environ.get('MAIL_SERVER') or 'smtp.gmail.com'
@@ -37,13 +41,12 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
 
-# ------------------- Database Creation Helper (Robust) -------------------
+# ------------------- Database Creation Helper (Updated for psycopg3) -------------------
 def ensure_database_exists(app):
     """
     Create the PostgreSQL database if it does not exist.
     For SQLite, this function does nothing.
-    If psycopg2 cannot be imported (e.g., Python version incompatibility),
-    it assumes the database already exists and continues.
+    If psycopg cannot be imported, it assumes the database already exists and continues.
     """
     db_uri = app.config['SQLALCHEMY_DATABASE_URI']
     
@@ -51,16 +54,16 @@ def ensure_database_exists(app):
     if db_uri.startswith('sqlite'):
         return
     
-    # Lazy import – only when we need to connect to PostgreSQL
+    # Use psycopg3
     try:
-        import psycopg2
-        from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+        import psycopg
+        from psycopg import sql
     except ImportError as e:
-        print(f"⚠️  psycopg2 not available: {e}")
+        print(f"⚠️  psycopg not available: {e}")
         print("   Assuming the PostgreSQL database already exists.")
-        return  # Assume database exists (typical in production)
+        return
     
-    # Parse PostgreSQL URI
+    # Parse PostgreSQL URI (works with postgresql+psycopg://...)
     parsed = urlparse(db_uri)
     db_name = parsed.path[1:]  # remove leading '/'
     db_user = parsed.username
@@ -70,27 +73,30 @@ def ensure_database_exists(app):
     
     try:
         # Connect to the default 'postgres' database
-        conn = psycopg2.connect(
+        conn = psycopg.connect(
             host=db_host,
             port=db_port,
             user=db_user,
             password=db_password,
-            database='postgres'
+            dbname='postgres'
         )
         conn.autocommit = True
-        cursor = conn.cursor()
+        cur = conn.cursor()
         
         # Check if target database exists
-        cursor.execute("SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s", (db_name,))
-        exists = cursor.fetchone()
+        cur.execute(
+            "SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s",
+            (db_name,)
+        )
+        exists = cur.fetchone()
         
         if not exists:
-            cursor.execute(f'CREATE DATABASE {db_name}')
+            cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(db_name)))
             print(f"✅ Database '{db_name}' created successfully.")
         else:
             print(f"✅ Database '{db_name}' already exists.")
         
-        cursor.close()
+        cur.close()
         conn.close()
         
     except Exception as e:
