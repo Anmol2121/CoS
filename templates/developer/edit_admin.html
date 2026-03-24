@@ -1,128 +1,100 @@
 {% extends "base.html" %}
-{% block sidebar %}
-<div class="sidebar-user">
-    <div class="avatar">
-        <i class="fas fa-user-tie"></i>
-    </div>
-    <h6>{{ current_user.email }}</h6>
-    <p>Developer · Super Admin</p>
-</div>
 
-<ul class="sidebar-menu">
-    <li>
-        <a href="{{ url_for('developer_dashboard') }}" class="{% if request.endpoint == 'developer_dashboard' %}active{% endif %}">
-            <i class="fas fa-chart-line"></i>
+{% block sidebar %}
+<!-- Same sidebar as dashboard.html -->
+<div class="px-4 py-6">
+    <div class="flex flex-col items-center text-center mb-8">
+        <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg mb-3">
+            {{ current_user.email[0]|upper }}
+        </div>
+        <h6 class="font-semibold text-gray-800">{{ current_user.email }}</h6>
+        <p class="text-xs text-gray-500 mt-1">Developer · Super Admin</p>
+    </div>
+    <nav class="space-y-1">
+        <a href="{{ url_for('developer_dashboard') }}" 
+           class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-medium {% if request.endpoint == 'developer_dashboard' %}bg-primary-50 text-primary-600{% else %}hover:bg-gray-100{% endif %} transition-all duration-200">
+            <i class="fas fa-chart-line w-5 text-lg"></i>
             <span>Dashboard</span>
         </a>
-    </li>
-    <li>
-        <a href="{{ url_for('manage_admins') }}" class="{% if request.endpoint == 'manage_admins' %}active{% endif %}">
-            <i class="fas fa-users"></i>
+        <a href="{{ url_for('manage_admins') }}" 
+           class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-medium {% if request.endpoint == 'manage_admins' %}bg-primary-50 text-primary-600{% else %}hover:bg-gray-100{% endif %} transition-all duration-200">
+            <i class="fas fa-users w-5 text-lg"></i>
             <span>Manage Admins</span>
         </a>
-    </li>
-    <li>
-        <a href="#" data-bs-toggle="collapse" data-bs-target="#systemMenu" aria-expanded="false">
-            <i class="fas fa-cog"></i>
-            <span>System Settings</span>
-            <i class="fas fa-chevron-down ms-auto"></i>
-        </a>
-        <ul class="collapse list-unstyled ms-4 mt-2" id="systemMenu">
-            <li><a href="#" class="small">General Settings</a></li>
-            <li><a href="#" class="small">Email Templates</a></li>
-            <li><a href="#" class="small">Backup</a></li>
-        </ul>
-    </li>
-</ul>
+        <div class="pt-4 mt-4 border-t border-gray-100">
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-medium hover:bg-gray-100 transition-all duration-200">
+                <i class="fas fa-cog w-5 text-lg"></i>
+                <span>System Settings</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </a>
+            <div class="ml-8 mt-2 space-y-1">
+                <a href="#" class="block py-2 text-sm text-gray-500 hover:text-primary-600">General Settings</a>
+                <a href="#" class="block py-2 text-sm text-gray-500 hover:text-primary-600">Email Templates</a>
+                <a href="#" class="block py-2 text-sm text-gray-500 hover:text-primary-600">Backup</a>
+            </div>
+        </div>
+    </nav>
+</div>
 {% endblock %}
+
 {% block content %}
-<div class="container-fluid px-4">
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('developer_dashboard') }}">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('manage_admins') }}">Manage Admins</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Edit Admin</li>
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li><a href="{{ url_for('developer_dashboard') }}" class="text-gray-500 hover:text-primary-600">Dashboard</a></li>
+            <li><i class="fas fa-chevron-right text-xs text-gray-400 mx-2"></i></li>
+            <li><a href="{{ url_for('manage_admins') }}" class="text-gray-500 hover:text-primary-600">Manage Admins</a></li>
+            <li><i class="fas fa-chevron-right text-xs text-gray-400 mx-2"></i></li>
+            <li class="text-gray-700 font-medium">Edit Admin</li>
         </ol>
     </nav>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-lg">
-                <div class="card-header bg-white border-0 py-4">
-                    <h3 class="mb-0">
-                        <i class="fas fa-user-edit text-primary me-2"></i>
-                        Edit Admin
-                    </h3>
-                    <p class="text-muted mb-0">Update admin information and subscription details.</p>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-100">
+            <h2 class="text-xl font-bold text-gray-900">Edit Admin</h2>
+            <p class="text-sm text-gray-500 mt-1">Update admin information and subscription details.</p>
+        </div>
+        <form method="post">
+            <div class="p-6 space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <input type="email" name="email" value="{{ user.email }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                    <p class="text-xs text-gray-500 mt-1">The admin will use this email to log in.</p>
                 </div>
-                <div class="card-body p-4">
-                    <form method="post">
-                        <!-- Email -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-envelope text-primary me-2"></i>Email Address
-                            </label>
-                            <input type="email" name="email" class="form-control form-control-lg" 
-                                   value="{{ user.email }}" required>
-                            <div class="form-text">The admin will use this email to log in.</div>
-                        </div>
-
-                        <!-- Coaching Name -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-building text-primary me-2"></i>Coaching Name
-                            </label>
-                            <input type="text" name="coaching_name" class="form-control form-control-lg" 
-                                   value="{{ admin.coaching_name }}" required>
-                            <div class="form-text">The name of the coaching center.</div>
-                        </div>
-
-                        <!-- Subscription Status -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-tag text-primary me-2"></i>Subscription Status
-                            </label>
-                            <select name="subscription_status" class="form-select form-select-lg">
-                                <option value="active" {% if admin.subscription_status == 'active' %}selected{% endif %}>
-                                    Active
-                                </option>
-                                <option value="expired" {% if admin.subscription_status == 'expired' %}selected{% endif %}>
-                                    Expired
-                                </option>
-                            </select>
-                            <div class="form-text">Determines if the admin can access their dashboard.</div>
-                        </div>
-
-                        <!-- Buttons -->
-                        <div class="d-flex gap-3 mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg px-5">
-                                <i class="fas fa-save me-2"></i>Update Admin
-                            </button>
-                            <a href="{{ url_for('manage_admins') }}" class="btn btn-outline-secondary btn-lg px-5">
-                                <i class="fas fa-times me-2"></i>Cancel
-                            </a>
-                        </div>
-                    </form>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Coaching Name</label>
+                    <input type="text" name="coaching_name" value="{{ admin.coaching_name }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                    <p class="text-xs text-gray-500 mt-1">The name of the coaching center.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Subscription Status</label>
+                    <select name="subscription_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="active" {% if admin.subscription_status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="expired" {% if admin.subscription_status == 'expired' %}selected{% endif %}>Expired</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Determines if the admin can access their dashboard.</p>
                 </div>
             </div>
+            <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
+                <a href="{{ url_for('manage_admins') }}" class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</a>
+                <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">Update Admin</button>
+            </div>
+        </form>
+    </div>
 
-            <!-- Additional Info Card -->
-            <div class="card border-0 shadow-sm mt-4">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-info-circle fa-2x text-info"></i>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-1">Admin Account Information</h6>
-                            <p class="mb-0 text-muted small">
-                                Created: {{ user.created_at.strftime('%B %d, %Y at %I:%M %p') }}<br>
-                                Status: {% if user.is_active %}Active{% else %}Suspended{% endif %}
-                            </p>
-                        </div>
-                    </div>
-                </div>
+    <!-- Additional Info Card -->
+    <div class="mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-start gap-4">
+            <div class="flex-shrink-0">
+                <i class="fas fa-info-circle text-info-500 text-2xl"></i>
+            </div>
+            <div>
+                <h4 class="text-sm font-semibold text-gray-900">Admin Account Information</h4>
+                <p class="text-sm text-gray-500 mt-1">
+                    Created: {{ user.created_at.strftime('%B %d, %Y at %I:%M %p') }}<br>
+                    Status: {% if user.is_active %}Active{% else %}Suspended{% endif %}
+                </p>
             </div>
         </div>
     </div>
